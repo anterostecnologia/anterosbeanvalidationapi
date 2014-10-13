@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -35,8 +34,6 @@ import javax.validation.bootstrap.GenericBootstrap;
 import javax.validation.bootstrap.ProviderSpecificBootstrap;
 import javax.validation.spi.BootstrapState;
 import javax.validation.spi.ValidationProvider;
-
-import br.com.anteros.core.utils.ReflectionUtils;
 
 /**
  * This class is the entry point for Bean Validation. There are three ways to
@@ -381,17 +378,8 @@ public class Validation {
 				 */
 				if (providers.size() == 0) {
 					try {
-						Class<?> scannerClass = Class.forName(SCANNER_CLASSES_ANDROID);
-						ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-						Field fieldByName = ReflectionUtils.getFieldByName(contextClassLoader.getClass(),
-								"originalPath");
-						if (fieldByName != null) {
-							List<Class<ValidationProvider<?>>> result = (List<Class<ValidationProvider<?>>>) ReflectionUtils
-									.invokeExactStaticMethod(scannerClass, "scanClassesImplementsInterface", new Object[] {
-											fieldByName.get(contextClassLoader) + "", ValidationProvider.class });
-							for (Class<ValidationProvider<?>> v : result)
-								providers.add(v.newInstance());
-						}
+						Class<ValidationProvider<?>> clValidationProvider = (Class<ValidationProvider<?>>) Class.forName("br.com.anteros.bean.validation.AnterosValidationProvider");
+						providers.add(clValidationProvider.newInstance());
 					} catch (Exception e) {
 					}
 				}
